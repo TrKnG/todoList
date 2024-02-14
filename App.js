@@ -46,7 +46,7 @@ export default function App() {
 
       </View>
 
-      {/*Yapılacaklar burada girilir*/}
+      {/*Yapılacaklar burada girilir !*/}
       <KeyboardAvoidingView
       behavior={Platform.OS === "android" ? "height" : "padding"}
       style = {styles.writeTaskWrapper}
