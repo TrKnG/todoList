@@ -1,69 +1,73 @@
-import { StatusBar } from 'expo-status-bar';
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Task from './components/task';
-import { useState } from 'react';
+// App.js
 
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import Task from './components/task.js';
 
 export default function App() {
-  const [task, setTask] = useState();
+  const [task, setTask] = useState('');
   const [taskItems, setTaskItems] = useState([]);
 
   const handleAddTask = () => {
     Keyboard.dismiss();
-    setTaskItems([...taskItems, task])
-    setTask(null)
-
-  }
+    if (task.trim() !== '') {
+      setTaskItems([...taskItems, { text: task, completed: false }]);
+      setTask('');
+    }
+  };
 
   const completeTask = (index) => {
-    let itemsCopy = [...taskItems];
-    itemsCopy.splice(index,1);
-    setTaskItems(itemsCopy);
-  }
+    setTaskItems(prevTaskItems => {
+      const newTaskItems = [...prevTaskItems];
+      newTaskItems[index].completed = !newTaskItems[index].completed;
+      return newTaskItems;
+    });
+  };
+
+  const deleteTask = (index) => {
+    setTaskItems(prevTaskItems => {
+      const newTaskItems = [...prevTaskItems];
+      newTaskItems.splice(index, 1);
+      return newTaskItems;
+    });
+  };
 
   return (
     <View style={styles.container}>
-      {/*Bugün yapılacaklar*/}
       <View style={styles.tasksWrapper}>
-        <Text style={styles.sectionTitle}>
-        Bugün yapılacaklar 
-
-        </Text>
+        <Text style={styles.sectionTitle}>Bugün yapılacaklar</Text>
         <View style={styles.items}>
-          {/*Yapılacaklar burada*/}
-          {
-            taskItems.map((item, index) => {
-             return (
-              <TouchableOpacity key= {index} onPress={() => completeTask(index)}>
-                <Task  text ={item} />
+          {taskItems.map((item, index) => {
+            return (
+              <TouchableOpacity key={index}>
+                <Task
+                  text={item.text}
+                  completed={item.completed}
+                  onComplete={() => completeTask(index)}
+                  onDelete={() => deleteTask(index)} // Yeni eklenen satır
+                />
               </TouchableOpacity>
-             ) 
-             
-            })
-          }
-
+            );
+          })}
         </View>
-
       </View>
-
-      {/*Yapılacaklar burada girilir !*/}
+      {/* Yapılacak işi girme kısmını buraya taşıdık */}
       <KeyboardAvoidingView
-      behavior={Platform.OS === "android" ? "height" : "padding"}
-      style = {styles.writeTaskWrapper}
-      >
-        <TextInput style={styles.input} placeholder={'Yapılacak iş gir'} value={task} onChangeText={text => setTask(text)}/>
-        <TouchableOpacity onPress={() => handleAddTask()}>
+        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        style={styles.writeTaskWrapper}>
+        <TextInput
+          style={styles.input}
+          placeholder={'Yapılacak iş gir'}
+          value={task}
+          onChangeText={(text) => setTask(text)}
+        />
+        <TouchableOpacity onPress={handleAddTask}>
           <View style={styles.addWrapper}>
-
-            <Text style={styles.addText}>
-              +
-            </Text>
-
+            <Text style={styles.addText}>+</Text>
           </View>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>
-
   );
 }
 
